@@ -1,3 +1,4 @@
+
 // Set new default font family and font color to mimic Bootstrap's default styling
 Chart.defaults.global.defaultFontFamily = 'Nunito', '-apple-system,system-ui,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif';
 Chart.defaults.global.defaultFontColor = '#858796';
@@ -27,14 +28,14 @@ function number_format(number, decimals, dec_point, thousands_sep) {
   return s.join(dec);
 }
 
-// Area Chart Example
+
 var ctx = document.getElementById("myAreaChart");
 var myLineChart = new Chart(ctx, {
   type: 'line',
   data: {
     labels: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
     datasets: [{
-      label: "Earnings",
+      label: "Currency",
       lineTension: 0.3,
       backgroundColor: "rgba(78, 115, 223, 0.05)",
       borderColor: "rgba(78, 115, 223, 1)",
@@ -116,3 +117,44 @@ var myLineChart = new Chart(ctx, {
     }
   }
 });
+
+function addData(chart, labels, data) { 
+  chart.data.labels = labels; 
+  chart.data.datasets[0].data = data; 
+  chart.update(); 
+ } 
+ function removeData(chart) { 
+  chart.data.labels=[]; 
+  chart.data.datasets[0].data = []; 
+  chart.update(); 
+ } 
+
+ 
+function getPrice(currency)
+{
+  
+  const labels=[];
+  const priceslist=[];
+  var prices=fetch("https://api.coingecko.com/api/v3/coins/"+currency+"/market_chart?vs_currency=usd&days=90&interval=daily")
+  .then(function(response){
+    return response.json()
+  })
+  .then(function(json){
+    for(price of json.prices){
+      var d=new Date(price[0]);
+      labels.push(d.getDate() + '/' + (d.getMonth()+1) + '/' + d.getFullYear())
+      priceslist.push(price[1]);
+    }
+
+    if(priceslist.length){
+      removeData(myLineChart);
+      $("#currency_header").html(currency.toUpperCase());
+      addData(myLineChart,labels,priceslist);
+    }
+  });
+  
+  
+  //return priceslist;
+}
+
+// Area Chart Example
